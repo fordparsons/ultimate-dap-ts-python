@@ -2,6 +2,8 @@
 print "spooling up"
 import ConfigParser
 import os
+import socket
+from contextlib import closing
 # read configuration file into the script
 print "pulling variables from the configuration file"
 # we need some if/or here to determine if the config file is in the proper location
@@ -29,6 +31,8 @@ def ConfigSectionMap(section):
             dict1[option] = None
     return dict1
 
+#define host locations
+localhost = "127.0.0.1"
 ad_host = ConfigSectionMap("ad_client")['host']
 radius_host = ConfigSectionMap("radius_server_auto")['radius_ip_1']
 
@@ -40,3 +44,15 @@ if ad_ping_response == 0:
   print "Active Directory is Reachable!"
 else:
   print "Where's that Active Directory?"
+
+#time to test a port
+ldap_port = 443
+
+print "are we listening for 1812?"
+socket_test = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+socket_test.settimeout(2)                                      #2 Second Timeout
+result = socket_test.connect_ex((ad_host,ldap_port))
+if result == 0:
+  print 'port OPEN'
+else:
+  print 'port CLOSED, connect_ex returned: '+str(result)
