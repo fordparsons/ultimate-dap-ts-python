@@ -1,6 +1,7 @@
 # import modules
 print "spooling up"
 import ConfigParser
+import os
 # read configuration file into the script
 print "pulling variables from the configuration file"
 # we need some if/or here to determine if the config file is in the proper location
@@ -28,4 +29,14 @@ def ConfigSectionMap(section):
             dict1[option] = None
     return dict1
 
-print ConfigSectionMap("ad_client")['host']
+ad_host = ConfigSectionMap("ad_client")['host']
+radius_host = ConfigSectionMap("radius_server_auto")['radius_ip_1']
+
+#test network connectivity to ad host
+ad_ping_response = os.system("ping -c 1 " + ad_host)
+
+#and then check the response...
+if ad_ping_response == 0:
+  print "Active Directory is Reachable!"
+else:
+  print "Where's that Active Directory?"
