@@ -3,7 +3,7 @@ print "spooling up"
 import ConfigParser
 import os
 import socket
-from contextlib import closing
+
 # read configuration file into the script
 print "pulling variables from the configuration file"
 # we need some if/or here to determine if the config file is in the proper location
