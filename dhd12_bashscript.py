@@ -5,17 +5,14 @@ import os
 import socket
 
 # read configuration file into the script
-print "pulling variables from the configuration file"
+print "pulling variables from authproxy.cfg"
 # we need some if/or here to determine if the config file is in the proper location
-#perhaps "did you move configuration file?" "if so, what's the new path?"
+# perhaps "did you move configuration file?" "if so, what's the new path?"
 
 #engage the config parser to pull in our configuration file
 #need to adjust path to config file to default
 Config = ConfigParser.ConfigParser()
 Config.read("authproxy.cfg")
-
-#getting verbose here...but list out the sections found
-#print Config.sections()
 
 #pull in individual config parameters
 def ConfigSectionMap(section):
@@ -31,12 +28,15 @@ def ConfigSectionMap(section):
             dict1[option] = None
     return dict1
 
-#define host locations
+# define host locations
+# This section needs to be logic'd to only search attributes included
+# Perhaps we need to create a list of included variables for later tests' logic
 localhost = "127.0.0.1"
 ad_host = ConfigSectionMap("ad_client")['host']
 radius_host = ConfigSectionMap("radius_server_auto")['radius_ip_1']
 
 #test network connectivity to ad host
+#This section needs to be silenced somehow
 ad_ping_response = os.system("ping -c 1 " + ad_host)
 
 #and then check the response...
