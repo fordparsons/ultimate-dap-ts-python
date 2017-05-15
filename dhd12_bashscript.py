@@ -2,6 +2,7 @@
 print "spooling up"
 import ConfigParser
 import os
+import subprocess
 import socket
 
 # read configuration file into the script
@@ -40,6 +41,7 @@ def DuoAcDirTest(ad_host):
             ad_reachable = False
     except:
         print 'DuoAcDirTest Failed!'
+
     return ad_reachable
 
 # Define a function to test port openness
@@ -53,8 +55,21 @@ def DuoPortTest(host,port):
             port_open = False
     except:
         print 'DuoPortTest Failed!'
+
     return port_open
 
+def DuoPingTest(ping_host):
+    try:
+        if subprocess.check_output(['ping', '-c', '1',ping_host],
+           stderr=subprocess.STDOUT,universal_newlines=True) == 0:
+            ping_host_reachable = True
+        else:
+            ping_host_reachable = False
+
+    except subprocess.CalledProcessError:
+        print 'DuoPingTest Failed!'
+
+    return ping_host_reachable
 
 # Static variable definitions
 localhost = "127.0.0.1"
@@ -64,7 +79,7 @@ radius_port = 1812
 # Test Sequence
 if Config.has_section("ad_client") == True:
     print 'ad_client found, testing host reachability'
-    if DuoAcDirTest(ConfigSectionMap("ad_client")['host']) == True:
+    if DuoPingTest(ConfigSectionMap("ad_client")['host']) == True:
         print 'Active Directory Reachable'
     else:
         print 'Active Directory NOT Reachable'
