@@ -42,29 +42,35 @@ def DuoAcDirTest(ad_host):
         print 'DuoAcDirTest Failed!'
     return ad_reachable
 
-# define host locations
-# This section needs to be logic'd to only search attributes included
-# Perhaps we need to create a list of included variables for later tests' logic
+# Define a function to test port openness
+def DuoPortTest(host,port):
+    try:
+        socket_test = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+        socket_test.settimeout(2)
+        if socket_test.connect_ex((host,port)) == 0:
+            port_open = True
+        else:
+            port_open = False
+    except:
+        print 'DuoPortTest Failed!'
+    return port_open
+
+
+# Static variable definitions
 localhost = "127.0.0.1"
+ldap_port = 443
+radius_port = 1812
+
+# Test Sequence
 if Config.has_section("ad_client") == True:
+    print 'ad_client found, testing host reachability'
     if DuoAcDirTest(ConfigSectionMap("ad_client")['host']) == True:
         print 'Active Directory Reachable'
     else:
         print 'Active Directory NOT Reachable'
 
-
-
-#time to test a port
-#ldap_port = 443
-
-#print "are we listening for 1812?"
-#socket_test = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-#socket_test.settimeout(2)                                      #2 Second Timeout
-#result = socket_test.connect_ex((ad_host,ldap_port))
-#if result == 0:
-#  print 'port OPEN'
-#else:
- # print 'port CLOSED, connect_ex returned: '+str(result)
-
-  #testing the features of github desktop
-  #further testing y'all
+    print 'testing ldap port is open'
+    if DuoPortTest(ConfigSectionMap("ad_client")['host'],ldap_port) == True:
+        print 'ldap port is open'
+    else:
+        print 'ldap port is closed'
