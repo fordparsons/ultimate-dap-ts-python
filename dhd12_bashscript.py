@@ -31,18 +31,21 @@ def ConfigSectionMap(section):
             dict1[option] = None
     return dict1
 
-# Define a function to test AD host connectivity
-def DuoAcDirTest(ad_host):
+# Define a function to test network reachability
+def DuoPingTest(ping_host):
     try:
-        ad_ping_response = os.system("ping -c 1 " + ad_host)
-        if ad_ping_response == 0:
-            ad_reachable = True
+        if subprocess.call(
+            ['ping', '-q', '-c', '1', ping_host],
+            stdout=open(os.devnull, 'wb')) == 0:
+            ping_host_reachable = True
         else:
-            ad_reachable = False
-    except:
-        print 'DuoAcDirTest Failed!'
+            ping_host_reachable = False
 
-    return ad_reachable
+    except subprocess.CalledProcessError:
+        print 'DuoPingTest Failed!'
+
+    return ping_host_reachable
+
 
 # Define a function to test port openness
 def DuoPortTest(host,port):
@@ -58,33 +61,22 @@ def DuoPortTest(host,port):
 
     return port_open
 
-def DuoPingTest(ping_host):
-    try:
-        if subprocess.check_output(['ping', '-c', '1',ping_host],
-           stderr=subprocess.STDOUT,universal_newlines=True) == 0:
-            ping_host_reachable = True
-        else:
-            ping_host_reachable = False
-
-    except subprocess.CalledProcessError:
-        print 'DuoPingTest Failed!'
-
-    return ping_host_reachable
-
 # Static variable definitions
 localhost = "127.0.0.1"
 ldap_port = 443
 radius_port = 1812
 
-# Test Sequence
+# AD Test Sequence
 if Config.has_section("ad_client") == True:
     print 'ad_client found, testing host reachability'
+
+    # Network Reachability Test
     if DuoPingTest(ConfigSectionMap("ad_client")['host']) == True:
         print 'Active Directory Reachable'
     else:
         print 'Active Directory NOT Reachable'
 
-    print 'testing ldap port is open'
+    # Port Test
     if DuoPortTest(ConfigSectionMap("ad_client")['host'],ldap_port) == True:
         print 'ldap port is open'
     else:
